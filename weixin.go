@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	log "github.com/bububa/factorlog"
 	"io/ioutil"
 	"net/http"
 	"sort"
@@ -44,21 +43,21 @@ func checkSignature(t string, w http.ResponseWriter, r *http.Request) bool {
 func authAccessToken(appid string, secret string) (string, time.Duration) {
 	resp, err := http.Get(weixinHost + "/token?grant_type=client_credential&appid=" + appid + "&secret=" + secret)
 	if err != nil {
-		log.Errorf("Get access token failed: ", err)
+		logger.Errorf("Get access token failed: ", err)
 	} else {
 		defer resp.Body.Close()
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			log.Errorf("Read access token failed: ", err)
+			logger.Errorf("Read access token failed: ", err)
 		} else {
 			var res struct {
 				AccessToken string `json:"access_token"`
 				ExpiresIn   int64  `json:"expires_in"`
 			}
 			if err := json.Unmarshal(body, &res); err != nil {
-				log.Errorf("Parse access token failed: ", err)
+				logger.Errorf("Parse access token failed: ", err)
 			} else {
-				//log.Debugf("AuthAccessToken token=%s expires_in=%d", res.AccessToken, res.ExpiresIn)
+				//logger.Debugf("AuthAccessToken token=%s expires_in=%d", res.AccessToken, res.ExpiresIn)
 				return res.AccessToken, time.Duration(res.ExpiresIn * 1000 * 1000 * 1000)
 			}
 		}

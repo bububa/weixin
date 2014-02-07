@@ -3,7 +3,6 @@ package weixin
 import (
 	"encoding/xml"
 	"fmt"
-	log "github.com/bububa/factorlog"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -34,12 +33,12 @@ func (wx *Weixin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Process message
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Errorf("Weixin receive message failed:", err)
+		logger.Errorf("Weixin receive message failed:", err)
 		http.Error(w, "", http.StatusBadRequest)
 	} else {
 		var msg Request
 		if err := xml.Unmarshal(data, &msg); err != nil {
-			log.Errorf("Weixin parse message failed:", err)
+			logger.Errorf("Weixin parse message failed:", err)
 			http.Error(w, "", http.StatusBadRequest)
 		} else {
 			wx.routeRequest(w, &msg)

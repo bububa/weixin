@@ -1,11 +1,18 @@
 package weixin
 
 import (
+	log "github.com/bububa/factorlog"
 	"io"
 	"net/http"
 	"regexp"
 	"time"
 )
+
+var logger *log.FactorLog
+
+func SetLogger(aLogger *log.FactorLog) {
+	logger = aLogger
+}
 
 // Common message header
 type MessageHeader struct {
