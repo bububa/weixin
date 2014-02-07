@@ -2,6 +2,7 @@ package weixin
 
 import (
 	log "github.com/bububa/factorlog"
+	"github.com/bububa/pg"
 	"io"
 	"net/http"
 	"regexp"
@@ -65,23 +66,24 @@ type Article struct {
 }
 
 type User struct {
-	Subscribe     uint8  `xml:"subscribe"`
-	OpenId        string `xml:"openid"`
-	Nick          string `xml:"nick"`
-	Sex           uint8  `xml:"sex"`
-	City          string `xml:"city"`
-	Country       string `xml:"country"`
-	Province      string `xml:"province"`
-	language      string `xml:"language"`
-	HeadImgUrl    string `xml:"headimgurl"`
-	SubscribeTime uint64 `xml:"subscribe_time"`
-	GroupId       uint64 `json:"groupid"`
+	Subscribe       uint8  `xml:"subscribe"`
+	OpenId          string `xml:"openid"`
+	Nick            string `xml:"nickname"`
+	Sex             uint8  `xml:"sex"`
+	City            string `xml:"city"`
+	Country         string `xml:"country"`
+	Province        string `xml:"province"`
+	language        string `xml:"language"`
+	HeadImgUrl      string `xml:"headimgurl"`
+	SubscribeTime   uint64 `xml:"subscribe_time"`
+	UnsubscribeTime uint64
+	GroupId         uint64 `json:"groupid"`
 }
 
 type Group struct {
-	Id    uint64 `json:"id,omitempty"`
-	Name  string `json:"string,omitempty"`
-	Count uint64 `json:"count,omitempty"`
+	Id   uint64 `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+	Num  uint64 `json:"count,omitempty"`
 }
 
 type Subscribers struct {
@@ -114,6 +116,18 @@ type ResponseWriter interface {
 	DownloadMediaToFile(mediaId string, filepath string) error
 	UploadMedia(mediaType string, filename string, reader io.Reader) (string, error)
 	DownloadMedia(mediaId string, writer io.Writer) error
+	// Group operator
+	CreateGroup(name string) (*Group, error)
+	GetGroups() ([]Group, error)
+	GetUserGroup(openId string) (*Group, error)
+	ChangeGroupName(group *Group) error
+	ChangeUserGroup(openId string, groupId uint64) error
+	// User operator
+	GetUser(openId string, lang string) (*User, error)
+	GetSubscribers(nextOpenId string) (*Subscribers, error)
+	// Helper
+	PgDB() *pg.DB
+	App() string
 }
 
 type responseWriter struct {
@@ -142,7 +156,9 @@ type accessToken struct {
 }
 
 type Weixin struct {
+	app       string
 	token     string
 	routes    []*route
 	tokenChan chan accessToken
+	pg        *pg.DB
 }

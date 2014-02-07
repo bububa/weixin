@@ -26,8 +26,10 @@ const (
 	MediaTypeVideo = "video"
 	MediaTypeThumb = "thumb"
 	// Weixin host URL
-	weixinHost    = "https://api.weixin.qq.com/cgi-bin"
-	weixinFileURL = "http://file.api.weixin.qq.com/cgi-bin/media"
+	weixinHost     = "https://api.weixin.qq.com/cgi-bin"
+	weixinFileURL  = "http://file.api.weixin.qq.com/cgi-bin/media"
+	weixinUserURL  = "https://api.weixin.qq.com/cgi-bin/user"
+	weixinGroupURL = "https://api.weixin.qq.com/cgi-bin/groups"
 	// Reply format
 	replyText    = "<xml>%s<MsgType><![CDATA[text]]></MsgType><Content><![CDATA[%s]]></Content></xml>"
 	replyImage   = "<xml>%s<MsgType><![CDATA[image]]></MsgType><Image><MediaId><![CDATA[%s]]></MediaId></Image></xml>"

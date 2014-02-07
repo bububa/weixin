@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/bububa/pg"
 	"io/ioutil"
 	"net/http"
 	"sort"
@@ -14,14 +15,17 @@ import (
 )
 
 // Create a Weixin instance
-func New(token string, appid string, secret string) *Weixin {
-	wx := &Weixin{}
-	wx.token = token
+func New(app string, token string, appid string, secret string) *Weixin {
+	wx := &Weixin{app: app, token: token}
 	if len(appid) > 0 && len(secret) > 0 {
 		wx.tokenChan = make(chan accessToken)
 		go createAccessToken(wx.tokenChan, appid, secret)
 	}
 	return wx
+}
+
+func (wx *Weixin) SetDB(db *pg.DB) {
+	wx.pg = db
 }
 
 func checkSignature(t string, w http.ResponseWriter, r *http.Request) bool {
@@ -103,6 +107,7 @@ func apiPOST(gateway string, c chan accessToken, msg interface{}) ([]byte, error
 				case 0:
 					return reply, nil
 				case 42001: // access_token timeout and retry
+					logger.Warn("Access Token timeout and retry")
 					continue
 				default:
 					return reply, errors.New(fmt.Sprintf("WeiXin reply[%d]: %s", result.ErrorCode, result.ErrorMessage))
@@ -128,12 +133,14 @@ func apiGET(gateway string, c chan accessToken) ([]byte, error) {
 			}
 			var result response
 			if err := json.Unmarshal(reply, &result); err != nil {
+				logger.Error(err)
 				return nil, err
 			} else {
 				switch result.ErrorCode {
 				case 0:
 					return reply, nil
 				case 42001: // access_token timeout and retry
+					logger.Warn("Access Token timeout and retry")
 					continue
 				default:
 					return nil, errors.New(fmt.Sprintf("WeiXin download[%d]: %s", result.ErrorCode, result.ErrorMessage))
@@ -142,4 +149,12 @@ func apiGET(gateway string, c chan accessToken) ([]byte, error) {
 		}
 	}
 	return nil, errors.New("WeiXin get too many times")
+}
+
+func (w responseWriter) App() string {
+	return w.wx.app
+}
+
+func (w responseWriter) PgDB() *pg.DB {
+	return w.wx.pg
 }

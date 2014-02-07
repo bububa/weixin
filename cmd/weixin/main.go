@@ -6,6 +6,7 @@ import (
 	"fmt"
 	log "github.com/bububa/factorlog"
 	"github.com/bububa/goconfig/config"
+	"github.com/bububa/pg"
 	"github.com/bububa/weixin"
 	"math/rand"
 	"net/http"
@@ -70,12 +71,37 @@ func main() {
 		logger.Fatal("need set port in config file")
 	}
 
+	pgHost, _ := cfg.String("pg", "host")
+	pgPort, _ := cfg.String("pg", "port")
+	pgUser, _ := cfg.String("pg", "user")
+	pgPassword, _ := cfg.String("pg", "passwd")
+	pgDbname, _ := cfg.String("pg", "dbname")
+
+	pgOptions := &pg.Options{
+		Host:     pgHost,
+		Port:     pgPort,
+		User:     pgUser,
+		Password: pgPassword,
+		Database: pgDbname,
+		PoolSize: 10,
+	}
+
+	pgDb := pg.Connect(pgOptions)
+	defer pgDb.Close()
+
 	apps := make(map[string]*App)
 	json.Unmarshal([]byte(appCfg), &apps)
 	for id, app := range apps {
-		mux := weixin.New(app.Token, app.Id, app.Secret)
-		mux.HandleFunc(weixin.MsgTypeText, Echo)
+		mux := weixin.New(id, app.Token, app.Id, app.Secret)
+		mux.SetDB(pgDb)
+		mux.HandleFunc(weixin.MsgTypeText, MsgTxt)
+		mux.HandleFunc(weixin.MsgTypeImage, MsgImage)
+		mux.HandleFunc(weixin.MsgTypeVoice, MsgVoice)
+		mux.HandleFunc(weixin.MsgTypeVideo, MsgVideo)
+		mux.HandleFunc(weixin.MsgTypeLocation, MsgLocation)
+		mux.HandleFunc(weixin.MsgTypeLink, MsgLink)
 		mux.HandleFunc(weixin.MsgTypeEventSubscribe, Subscribe)
+		mux.HandleFunc(weixin.MsgTypeEventUnsubscribe, Unsubscribe)
 		http.Handle("/"+id, mux) // 注册接收微信服务器数据的接口URI
 	}
 	err = http.ListenAndServe(fmt.Sprintf(":%d", appPort), nil) // 启动接收微信数据服务器

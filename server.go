@@ -12,7 +12,7 @@ import (
 func (wx *Weixin) HandleFunc(pattern string, handler HandlerFunc) {
 	regex, err := regexp.Compile(pattern)
 	if err != nil {
-		panic(err)
+		logger.Fatal(err)
 		return
 	}
 	route := &route{regex, handler}
@@ -27,6 +27,7 @@ func (wx *Weixin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	// Verify request
 	if r.Method == "GET" {
+		logger.Infof(r.URL.String())
 		fmt.Fprintf(w, r.FormValue("echostr"))
 		return
 	}
