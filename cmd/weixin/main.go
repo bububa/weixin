@@ -102,7 +102,15 @@ func main() {
 		mux.HandleFunc(weixin.MsgTypeLink, MsgLink)
 		mux.HandleFunc(weixin.MsgTypeEventSubscribe, Subscribe)
 		mux.HandleFunc(weixin.MsgTypeEventUnsubscribe, Unsubscribe)
-		http.Handle("/"+id, mux) // 注册接收微信服务器数据的接口URI
+		mux.HandleFunc("/subscribers", GetSubscribers)
+		mux.HandleFunc("/groups", GetGroups)
+		mux.HandleFunc("/group/create", CreateGroup)
+		mux.HandleFunc("/group/changename", ChangeGroupName)
+		mux.HandleFunc("/user", GetUser)
+		mux.HandleFunc("/user/group", GetUserGroup)
+		mux.HandleFunc("/user/changegroup", ChangeUserGroup)
+		mux.HandleFunc("/menu/create", CreateMenu)
+		http.Handle("/"+id+"/", mux) // 注册接收微信服务器数据的接口URI
 	}
 	err = http.ListenAndServe(fmt.Sprintf(":%d", appPort), nil) // 启动接收微信数据服务器
 	if err != nil {

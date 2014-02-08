@@ -21,13 +21,30 @@ func (wx *Weixin) HandleFunc(pattern string, handler HandlerFunc) {
 
 // Process weixin request and send response.
 func (wx *Weixin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Host[0:4] == "api." {
+		logger.Info(r.URL.Path)
+		for _, route := range wx.routes {
+			if !route.regex.MatchString(r.URL.Path) {
+				continue
+			}
+			writer := responseWriter{}
+			writer.wx = wx
+			writer.writer = w
+			req := Request{
+				FormValues: r.Form,
+			}
+			route.handler(writer, &req)
+			return
+		}
+		return
+	}
+
 	if !checkSignature(wx.token, w, r) {
 		http.Error(w, "", http.StatusUnauthorized)
 		return
 	}
 	// Verify request
 	if r.Method == "GET" {
-		logger.Infof(r.URL.String())
 		fmt.Fprintf(w, r.FormValue("echostr"))
 		return
 	}

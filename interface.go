@@ -5,6 +5,7 @@ import (
 	"github.com/bububa/pg"
 	"io"
 	"net/http"
+	"net/url"
 	"regexp"
 	"time"
 )
@@ -46,6 +47,7 @@ type Request struct {
 	Longitude    float32
 	Precision    float32
 	Recognition  string
+	FormValues   url.Values
 }
 
 // Use to reply music message
@@ -73,7 +75,7 @@ type User struct {
 	City            string `xml:"city"`
 	Country         string `xml:"country"`
 	Province        string `xml:"province"`
-	language        string `xml:"language"`
+	Language        string `xml:"language"`
 	HeadImgUrl      string `xml:"headimgurl"`
 	SubscribeTime   uint64 `xml:"subscribe_time"`
 	UnsubscribeTime uint64
@@ -93,6 +95,18 @@ type Subscribers struct {
 		OpenId []string `json:"openid"`
 	} `json:"data"`
 	NextOpenId string `json:"next_openid"`
+}
+
+type Button struct {
+	Type      string  `json:"type,omitempty"`
+	Name      string  `json:"name,omitempty"`
+	Key       string  `json:"name,omitempty"`
+	Url       string  `json:"url,omitempty"`
+	SubButton *Button `json:"sub_button,omitempty"`
+}
+
+type Menu struct {
+	Button *Button `json:"button,omitempty"`
 }
 
 // Use to output reply
@@ -125,6 +139,9 @@ type ResponseWriter interface {
 	// User operator
 	GetUser(openId string, lang string) (*User, error)
 	GetSubscribers(nextOpenId string) (*Subscribers, error)
+	GetSubscribersWithInfo(nextOpenId string) (*Subscribers, []*User, error)
+	// Menu operator
+	CreateMenu(menu *Menu) error
 	// Helper
 	PgDB() *pg.DB
 	App() string

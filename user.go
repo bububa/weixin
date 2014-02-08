@@ -29,10 +29,63 @@ func (wx *Weixin) GetSubscribers(nextOpenId string) (subscribers *Subscribers, e
 
 // Get User Info
 func (w responseWriter) GetUser(openId string, lang string) (user *User, err error) {
-	return w.wx.GetUser(openId, lang)
+	user, err = w.wx.GetUser(openId, lang)
+	if err != nil {
+		logger.Warn(err)
+		return
+	}
+	js, err := json.Marshal(user)
+	if err != nil {
+		logger.Warn(err)
+		return
+	}
+	w.writer.Write(js)
+	return
 }
 
 // Get Subscribers
-func (w responseWriter) GetSubscribers(nextOpenId string) (*Subscribers, error) {
-	return w.wx.GetSubscribers(nextOpenId)
+func (w responseWriter) GetSubscribers(nextOpenId string) (subscribers *Subscribers, err error) {
+	subscribers, err = w.wx.GetSubscribers(nextOpenId)
+	if err != nil {
+		logger.Warn(err)
+		return
+	}
+	js, err := json.Marshal(subscribers)
+	if err != nil {
+		logger.Warn(err)
+		return
+	}
+	w.writer.Write(js)
+	return
+}
+
+// Get SubscribersWithInfo
+func (w responseWriter) GetSubscribersWithInfo(nextOpenId string) (subscribers *Subscribers, users []*User, err error) {
+	subscribers, err = w.wx.GetSubscribers(nextOpenId)
+	if err != nil {
+		logger.Warn(err)
+		return
+	}
+	for _, openId := range subscribers.Data.OpenId {
+		user, er := w.wx.GetUser(openId, "zh_CN")
+		if er != nil {
+			logger.Warn(er)
+			err = er
+			return
+		}
+		users = append(users, user)
+	}
+	var msg struct {
+		Subscribers *Subscribers `json:"subscribers"`
+		Users       []*User      `json:"users"`
+	}
+	msg.Subscribers = subscribers
+	msg.Users = users
+	js, err := json.Marshal(msg)
+	if err != nil {
+		logger.Warn(err)
+		return
+	}
+	w.writer.Write(js)
+	return
 }

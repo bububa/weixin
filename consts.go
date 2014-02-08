@@ -20,6 +20,7 @@ const (
 	MsgTypeEventUnsubscribe = msgEvent + "\\." + EventUnsubscribe
 	MsgTypeEventScan        = msgEvent + "\\." + EventScan
 	MsgTypeEventClick       = msgEvent + "\\." + EventClick
+
 	// Media type
 	MediaTypeImage = "image"
 	MediaTypeVoice = "voice"
@@ -30,6 +31,7 @@ const (
 	weixinFileURL  = "http://file.api.weixin.qq.com/cgi-bin/media"
 	weixinUserURL  = "https://api.weixin.qq.com/cgi-bin/user"
 	weixinGroupURL = "https://api.weixin.qq.com/cgi-bin/groups"
+	weixinMenuURL  = " https://api.weixin.qq.com/cgi-bin/menu"
 	// Reply format
 	replyText    = "<xml>%s<MsgType><![CDATA[text]]></MsgType><Content><![CDATA[%s]]></Content></xml>"
 	replyImage   = "<xml>%s<MsgType><![CDATA[image]]></MsgType><Image><MediaId><![CDATA[%s]]></MediaId></Image></xml>"
