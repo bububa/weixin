@@ -110,7 +110,7 @@ func apiPOST(gateway string, c chan accessToken, msg interface{}) ([]byte, error
 					logger.Warn("Access Token timeout and retry")
 					continue
 				default:
-					return reply, errors.New(fmt.Sprintf("WeiXin reply[%d]: %s", result.ErrorCode, result.ErrorMessage))
+					return reply, result
 				}
 			}
 		}

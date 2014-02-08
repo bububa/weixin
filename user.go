@@ -30,14 +30,21 @@ func (wx *Weixin) GetSubscribers(nextOpenId string) (subscribers *Subscribers, e
 // Get User Info
 func (w responseWriter) GetUser(openId string, lang string) (user *User, err error) {
 	user, err = w.wx.GetUser(openId, lang)
-	if err != nil {
-		logger.Warn(err)
-		return
-	}
-	js, err := json.Marshal(user)
-	if err != nil {
-		logger.Warn(err)
-		return
+	var js []byte
+	if err == nil {
+		js, _ = json.Marshal(user)
+	} else {
+		switch err.(type) {
+		case response:
+			js, _ = json.Marshal(err)
+		default:
+			res := response{
+				ErrorCode:    0,
+				ErrorMessage: err.Error(),
+			}
+			js, _ = json.Marshal(res)
+		}
+
 	}
 	w.writer.Write(js)
 	return
@@ -46,14 +53,21 @@ func (w responseWriter) GetUser(openId string, lang string) (user *User, err err
 // Get Subscribers
 func (w responseWriter) GetSubscribers(nextOpenId string) (subscribers *Subscribers, err error) {
 	subscribers, err = w.wx.GetSubscribers(nextOpenId)
-	if err != nil {
-		logger.Warn(err)
-		return
-	}
-	js, err := json.Marshal(subscribers)
-	if err != nil {
-		logger.Warn(err)
-		return
+	var js []byte
+	if err == nil {
+		js, _ = json.Marshal(subscribers)
+	} else {
+		switch err.(type) {
+		case response:
+			js, _ = json.Marshal(err)
+		default:
+			res := response{
+				ErrorCode:    0,
+				ErrorMessage: err.Error(),
+			}
+			js, _ = json.Marshal(res)
+		}
+
 	}
 	w.writer.Write(js)
 	return
@@ -62,14 +76,33 @@ func (w responseWriter) GetSubscribers(nextOpenId string) (subscribers *Subscrib
 // Get SubscribersWithInfo
 func (w responseWriter) GetSubscribersWithInfo(nextOpenId string) (subscribers *Subscribers, users []*User, err error) {
 	subscribers, err = w.wx.GetSubscribers(nextOpenId)
+	var js []byte
 	if err != nil {
-		logger.Warn(err)
+		switch err.(type) {
+		case response:
+			js, _ = json.Marshal(err)
+		default:
+			res := response{
+				ErrorCode:    0,
+				ErrorMessage: err.Error(),
+			}
+			js, _ = json.Marshal(res)
+		}
 		return
 	}
 	for _, openId := range subscribers.Data.OpenId {
 		user, er := w.wx.GetUser(openId, "zh_CN")
 		if er != nil {
-			logger.Warn(er)
+			switch er.(type) {
+			case response:
+				js, _ = json.Marshal(er)
+			default:
+				res := response{
+					ErrorCode:    0,
+					ErrorMessage: er.Error(),
+				}
+				js, _ = json.Marshal(res)
+			}
 			err = er
 			return
 		}
@@ -81,9 +114,13 @@ func (w responseWriter) GetSubscribersWithInfo(nextOpenId string) (subscribers *
 	}
 	msg.Subscribers = subscribers
 	msg.Users = users
-	js, err := json.Marshal(msg)
+	js, err = json.Marshal(msg)
 	if err != nil {
-		logger.Warn(err)
+		res := response{
+			ErrorCode:    0,
+			ErrorMessage: err.Error(),
+		}
+		js, _ = json.Marshal(res)
 		return
 	}
 	w.writer.Write(js)

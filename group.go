@@ -74,25 +74,105 @@ func (wx *Weixin) ChangeUserGroup(openId string, groupId uint64) error {
 
 // Create Group
 func (w responseWriter) CreateGroup(name string) (group *Group, err error) {
-	return w.wx.CreateGroup(name)
+	group, err = w.wx.CreateGroup(name)
+	var js []byte
+	if err == nil {
+		js, _ = json.Marshal(group)
+	} else {
+		switch err.(type) {
+		case response:
+			js, _ = json.Marshal(err)
+		default:
+			res := response{
+				ErrorCode:    0,
+				ErrorMessage: err.Error(),
+			}
+			js, _ = json.Marshal(res)
+		}
+
+	}
+	w.writer.Write(js)
+	return
 }
 
 // Get Groups
 func (w responseWriter) GetGroups() (groups []Group, err error) {
-	return w.wx.GetGroups()
+	groups, err = w.wx.GetGroups()
+	var js []byte
+	if err == nil {
+		js, _ = json.Marshal(groups)
+	} else {
+		switch err.(type) {
+		case response:
+			js, _ = json.Marshal(err)
+		default:
+			res := response{
+				ErrorCode:    0,
+				ErrorMessage: err.Error(),
+			}
+			js, _ = json.Marshal(res)
+		}
+
+	}
+	w.writer.Write(js)
+	return
 }
 
 // Get User Group
 func (w responseWriter) GetUserGroup(openId string) (group *Group, err error) {
-	return w.wx.GetUserGroup(openId)
+	group, err = w.wx.GetUserGroup(openId)
+	var js []byte
+	if err == nil {
+		js, _ = json.Marshal(group)
+	} else {
+		switch err.(type) {
+		case response:
+			js, _ = json.Marshal(err)
+		default:
+			res := response{
+				ErrorCode:    0,
+				ErrorMessage: err.Error(),
+			}
+			js, _ = json.Marshal(res)
+		}
+
+	}
+	w.writer.Write(js)
+	return
 }
 
 // Change Group Name
 func (w responseWriter) ChangeGroupName(group *Group) error {
-	return w.wx.ChangeGroupName(group)
+	err := w.wx.ChangeGroupName(group)
+	var js []byte
+	switch err.(type) {
+	case response:
+		js, _ = json.Marshal(err)
+	default:
+		res := response{
+			ErrorCode:    0,
+			ErrorMessage: err.Error(),
+		}
+		js, _ = json.Marshal(res)
+	}
+	w.writer.Write(js)
+	return err
 }
 
 // Get User Group
 func (w responseWriter) ChangeUserGroup(openId string, groupId uint64) error {
-	return w.wx.ChangeUserGroup(openId, groupId)
+	err := w.wx.ChangeUserGroup(openId, groupId)
+	var js []byte
+	switch err.(type) {
+	case response:
+		js, _ = json.Marshal(err)
+	default:
+		res := response{
+			ErrorCode:    0,
+			ErrorMessage: err.Error(),
+		}
+		js, _ = json.Marshal(res)
+	}
+	w.writer.Write(js)
+	return err
 }

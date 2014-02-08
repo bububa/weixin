@@ -1,13 +1,30 @@
 package weixin
 
+import (
+	"encoding/json"
+)
+
 // Create Menu
 func (wx *Weixin) CreateMenu(menu *Menu) error {
-	gateway := weixinGroupURL + "/create?access_token="
+	gateway := weixinMenuURL + "/create?access_token="
 	_, err := apiPOST(gateway, wx.tokenChan, menu)
 	return err
 }
 
 // Create Menu
 func (w responseWriter) CreateMenu(menu *Menu) error {
-	return w.wx.CreateMenu(menu)
+	err := w.wx.CreateMenu(menu)
+	var js []byte
+	switch err.(type) {
+	case response:
+		js, _ = json.Marshal(err)
+	default:
+		res := response{
+			ErrorCode:    0,
+			ErrorMessage: err.Error(),
+		}
+		js, _ = json.Marshal(res)
+	}
+	w.writer.Write(js)
+	return err
 }

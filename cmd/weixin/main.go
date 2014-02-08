@@ -110,6 +110,8 @@ func main() {
 		mux.HandleFunc("/user/group", GetUserGroup)
 		mux.HandleFunc("/user/changegroup", ChangeUserGroup)
 		mux.HandleFunc("/menu/create", CreateMenu)
+		mux.HandleFunc("/qrcode/create", CreateQrcode)
+		mux.HandleFunc("/qrcode/createtmp", CreateTempQrcode)
 		http.Handle("/"+id+"/", mux) // 注册接收微信服务器数据的接口URI
 	}
 	err = http.ListenAndServe(fmt.Sprintf(":%d", appPort), nil) // 启动接收微信数据服务器

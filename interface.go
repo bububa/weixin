@@ -1,6 +1,7 @@
 package weixin
 
 import (
+	"fmt"
 	log "github.com/bububa/factorlog"
 	"github.com/bububa/pg"
 	"io"
@@ -109,6 +110,11 @@ type Menu struct {
 	Button *Button `json:"button,omitempty"`
 }
 
+type TicketReply struct {
+	Ticket        string `json:"ticket"`
+	ExpireSeconds uint   `json:"expire_seconds"`
+}
+
 // Use to output reply
 type ResponseWriter interface {
 	// Reply message
@@ -142,6 +148,11 @@ type ResponseWriter interface {
 	GetSubscribersWithInfo(nextOpenId string) (*Subscribers, []*User, error)
 	// Menu operator
 	CreateMenu(menu *Menu) error
+	// Orcode operator
+	CreateQrcode(sceneId uint64) (*TicketReply, error)
+	CreateTempQrcode(sceneId uint64, expireSeconds uint) (*TicketReply, error)
+	ShowQrcode(sceneId uint64) error
+	ShowTempQrcode(sceneId uint64, expireSeconds uint) error
 	// Helper
 	PgDB() *pg.DB
 	App() string
@@ -157,6 +168,10 @@ type responseWriter struct {
 type response struct {
 	ErrorCode    int    `json:"errcode"`
 	ErrorMessage string `json:"errmsg"`
+}
+
+func (e response) Error() string {
+	return fmt.Sprintf("CODE:%v, MSG:%v", e.ErrorCode, e.ErrorMessage)
 }
 
 // Callback function

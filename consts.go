@@ -1,6 +1,8 @@
 package weixin
 
 const (
+	QR_SCENE       = "QR_SCENE"
+	QR_LIMIT_SCENE = "QR_LIMIT_SCENE"
 	// Event type
 	msgEvent         = "event"
 	EventSubscribe   = "subscribe"
@@ -27,11 +29,13 @@ const (
 	MediaTypeVideo = "video"
 	MediaTypeThumb = "thumb"
 	// Weixin host URL
-	weixinHost     = "https://api.weixin.qq.com/cgi-bin"
-	weixinFileURL  = "http://file.api.weixin.qq.com/cgi-bin/media"
-	weixinUserURL  = "https://api.weixin.qq.com/cgi-bin/user"
-	weixinGroupURL = "https://api.weixin.qq.com/cgi-bin/groups"
-	weixinMenuURL  = " https://api.weixin.qq.com/cgi-bin/menu"
+	weixinHost          = "https://api.weixin.qq.com/cgi-bin"
+	weixinFileURL       = "http://file.api.weixin.qq.com/cgi-bin/media"
+	weixinUserURL       = "https://api.weixin.qq.com/cgi-bin/user"
+	weixinGroupURL      = "https://api.weixin.qq.com/cgi-bin/groups"
+	weixinMenuURL       = " https://api.weixin.qq.com/cgi-bin/menu"
+	weixinQrcodeURL     = "https://api.weixin.qq.com/cgi-bin/qrcode"
+	weixinShowQrcodeURL = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="
 	// Reply format
 	replyText    = "<xml>%s<MsgType><![CDATA[text]]></MsgType><Content><![CDATA[%s]]></Content></xml>"
 	replyImage   = "<xml>%s<MsgType><![CDATA[image]]></MsgType><Image><MediaId><![CDATA[%s]]></MediaId></Image></xml>"

@@ -27,6 +27,7 @@ func (wx *Weixin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if !route.regex.MatchString(r.URL.Path) {
 				continue
 			}
+			r.ParseForm()
 			writer := responseWriter{}
 			writer.wx = wx
 			writer.writer = w
