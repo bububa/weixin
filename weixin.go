@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bububa/pg"
+	_ "github.com/bububa/mymysql/thrsafe"
 	"io/ioutil"
 	"net/http"
 	"sort"
@@ -24,7 +25,7 @@ func New(app string, token string, appid string, secret string) *Weixin {
 	return wx
 }
 
-func (wx *Weixin) SetDB(db *pg.DB) {
+func (wx *Weixin) SetDb(db *pg.DB) {
 	wx.pg = db
 }
 
@@ -153,6 +154,10 @@ func apiGET(gateway string, c chan accessToken) ([]byte, error) {
 
 func (w responseWriter) App() string {
 	return w.wx.app
+}
+
+func (w responseWriter) Wx() *Weixin {
+    return w.wx
 }
 
 func (w responseWriter) PgDB() *pg.DB {

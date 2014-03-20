@@ -1,7 +1,7 @@
 package weixin
 
 import (
-	"encoding/json"
+	//"encoding/json"
 )
 
 // Create Menu
@@ -12,8 +12,16 @@ func (wx *Weixin) CreateMenu(menu *Menu) error {
 }
 
 // Create Menu
+func (wx *Weixin) DeleteMenu() error {
+	gateway := weixinMenuURL + "/delete?access_token="
+	_, err := apiGET(gateway, wx.tokenChan)
+	return err
+}
+
+// Create Menu
 func (w responseWriter) CreateMenu(menu *Menu) error {
 	err := w.wx.CreateMenu(menu)
+    /*
 	var js []byte
 	switch err.(type) {
 	case response:
@@ -26,5 +34,12 @@ func (w responseWriter) CreateMenu(menu *Menu) error {
 		js, _ = json.Marshal(res)
 	}
 	w.writer.Write(js)
+    */
+	return err
+}
+
+// Delete Menu
+func (w responseWriter) DeleteMenu() error {
+    err := w.wx.DeleteMenu()
 	return err
 }

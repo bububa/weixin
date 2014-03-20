@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"regexp"
 	"time"
+	"sync"
 )
 
 var logger *log.FactorLog
@@ -69,17 +70,17 @@ type Article struct {
 }
 
 type User struct {
-	Subscribe       uint8  `xml:"subscribe"`
-	OpenId          string `xml:"openid"`
-	Nick            string `xml:"nickname"`
-	Sex             uint8  `xml:"sex"`
-	City            string `xml:"city"`
-	Country         string `xml:"country"`
-	Province        string `xml:"province"`
-	Language        string `xml:"language"`
-	HeadImgUrl      string `xml:"headimgurl"`
-	SubscribeTime   uint64 `xml:"subscribe_time"`
-	UnsubscribeTime uint64
+	Subscribe       uint8  `json:"subscribe"`
+	OpenId          string `json:"openid"`
+	Nick            string `json:"nickname"`
+	Sex             uint8  `json:"sex"`
+	City            string `json:"city"`
+	Country         string `json:"country"`
+	Province        string `json:"province"`
+	Language        string `json:"language"`
+	HeadImgUrl      string `json:"headimgurl"`
+	SubscribeTime   uint64 `json:"subscribe_time"`
+    UnsubscribeTime uint64 `json:"unsubscribe_time"`
 	GroupId         uint64 `json:"groupid"`
 }
 
@@ -101,13 +102,13 @@ type Subscribers struct {
 type Button struct {
 	Type      string  `json:"type,omitempty"`
 	Name      string  `json:"name,omitempty"`
-	Key       string  `json:"name,omitempty"`
+	Key       string  `json:"key,omitempty"`
 	Url       string  `json:"url,omitempty"`
 	SubButton *Button `json:"sub_button,omitempty"`
 }
 
 type Menu struct {
-	Button *Button `json:"button,omitempty"`
+	Button []*Button `json:"button,omitempty"`
 }
 
 type TicketReply struct {
@@ -148,6 +149,7 @@ type ResponseWriter interface {
 	GetSubscribersWithInfo(nextOpenId string) (*Subscribers, []*User, error)
 	// Menu operator
 	CreateMenu(menu *Menu) error
+    DeleteMenu() error
 	// Orcode operator
 	CreateQrcode(sceneId uint64) (*TicketReply, error)
 	CreateTempQrcode(sceneId uint64, expireSeconds uint) (*TicketReply, error)
@@ -156,6 +158,7 @@ type ResponseWriter interface {
 	// Helper
 	PgDB() *pg.DB
 	App() string
+    Wx() *Weixin
 }
 
 type responseWriter struct {
@@ -188,9 +191,20 @@ type accessToken struct {
 }
 
 type Weixin struct {
-	app       string
-	token     string
-	routes    []*route
-	tokenChan chan accessToken
-	pg        *pg.DB
+	app         string
+	token       string
+	routes      []*route
+	tokenChan   chan accessToken
+	pg          *pg.DB
+}
+
+type SceneParams struct {
+    Expires     uint64      `json:"expires,omitempty"`
+    Callback    string      `json:"callback"`
+    Created     time.Time   `json:"-"`
+}
+
+type ScenesMap struct {
+	Mutex *sync.Mutex
+	Scenes map[uint64]SceneParams
 }

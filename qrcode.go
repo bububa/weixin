@@ -21,7 +21,7 @@ func (wx *Weixin) CreateQrcode(sceneId uint64) (ticketReply *TicketReply, err er
 	gateway := weixinQrcodeURL + "/create?access_token="
 	reply, err := apiPOST(gateway, wx.tokenChan, &msg)
 	if err == nil && reply != nil {
-		err = json.Unmarshal(reply, ticketReply)
+		err = json.Unmarshal(reply, &ticketReply)
 	}
 	return
 }
@@ -29,7 +29,7 @@ func (wx *Weixin) CreateQrcode(sceneId uint64) (ticketReply *TicketReply, err er
 // Create Temperary Qrcode
 func (wx *Weixin) CreateTempQrcode(sceneId uint64, expireSeconds uint) (ticketReply *TicketReply, err error) {
 	var msg struct {
-		ExpireSeconds uint
+        ExpireSeconds uint `json:"expire_seconds"`
 		ActionName    string `json:"action_name"`
 		ActionInfo    struct {
 			Scene struct {
@@ -43,7 +43,7 @@ func (wx *Weixin) CreateTempQrcode(sceneId uint64, expireSeconds uint) (ticketRe
 	gateway := weixinQrcodeURL + "/create?access_token="
 	reply, err := apiPOST(gateway, wx.tokenChan, &msg)
 	if err == nil && reply != nil {
-		err = json.Unmarshal(reply, ticketReply)
+		err = json.Unmarshal(reply, &ticketReply)
 	}
 	return
 }
@@ -149,7 +149,6 @@ func (w responseWriter) CreateQrcode(sceneId uint64) (ticketReply *TicketReply, 
 			}
 			js, _ = json.Marshal(res)
 		}
-
 	}
 	w.writer.Write(js)
 	return

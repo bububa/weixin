@@ -7,7 +7,7 @@ const (
 	msgEvent         = "event"
 	EventSubscribe   = "subscribe"
 	EventUnsubscribe = "unsubscribe"
-	EventScan        = "scan"
+	EventScan        = "SCAN"
 	EventClick       = "CLICK"
 	// Message type
 	MsgTypeDefault          = ".*"
@@ -33,7 +33,7 @@ const (
 	weixinFileURL       = "http://file.api.weixin.qq.com/cgi-bin/media"
 	weixinUserURL       = "https://api.weixin.qq.com/cgi-bin/user"
 	weixinGroupURL      = "https://api.weixin.qq.com/cgi-bin/groups"
-	weixinMenuURL       = " https://api.weixin.qq.com/cgi-bin/menu"
+	weixinMenuURL       = "https://api.weixin.qq.com/cgi-bin/menu"
 	weixinQrcodeURL     = "https://api.weixin.qq.com/cgi-bin/qrcode"
 	weixinShowQrcodeURL = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="
 	// Reply format
