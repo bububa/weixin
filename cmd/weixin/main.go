@@ -1,18 +1,18 @@
 package main
 
 import (
-	log "github.com/bububa/factorlog"
-	"github.com/bububa/goconfig/config"
-	"github.com/bububa/pg"
-	"github.com/bububa/weixin"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/bububa/goconfig/config"
+	"github.com/bububa/pg"
+	"github.com/bububa/weixin"
+	log "github.com/kdar/factorlog"
 	"math/rand"
 	"net/http"
 	"os"
-    "sync"
 	"runtime"
+	"sync"
 	"time"
 )
 
@@ -27,12 +27,12 @@ type App struct {
 }
 
 var (
-	logFlag                 = flag.String("log", "", "set log path")
-	configFile              = flag.String("config", "", "set config file")
-	logger                  *log.FactorLog
-    scenesMap               *weixin.ScenesMap
-    apiHost                 string
-    callbackUrl             map[string]string
+	logFlag     = flag.String("log", "", "set log path")
+	configFile  = flag.String("config", "", "set config file")
+	logger      *log.FactorLog
+	scenesMap   *weixin.ScenesMap
+	apiHost     string
+	callbackUrl map[string]string
 )
 
 func init() {
@@ -42,10 +42,10 @@ func init() {
 	flag.Parse()
 	rand.Seed(int64(time.Second))
 
-    scenesMap = &weixin.ScenesMap {
-        Mutex: new(sync.Mutex),
-        Scenes: make(map[uint64]weixin.SceneParams),
-    }
+	scenesMap = &weixin.ScenesMap{
+		Mutex:  new(sync.Mutex),
+		Scenes: make(map[uint64]weixin.SceneParams),
+	}
 }
 
 func SetGlobalLogger(logPath string) *log.FactorLog {
@@ -63,27 +63,27 @@ func SetGlobalLogger(logPath string) *log.FactorLog {
 }
 
 func main() {
-    conf := _CONFIG_FILE
-    if *configFile != "" {
-        conf = *configFile
-    }
-    cfg, _ := config.ReadDefault(conf)
+	conf := _CONFIG_FILE
+	if *configFile != "" {
+		conf = *configFile
+	}
+	cfg, _ := config.ReadDefault(conf)
 
-    appCfg, err := cfg.String("weixin", "apps")
+	appCfg, err := cfg.String("weixin", "apps")
 	if err != nil {
 		logger.Fatal("need set apps in config file in json format")
 	}
-    appPort, err := cfg.Int("weixin", "port")
+	appPort, err := cfg.Int("weixin", "port")
 	if err != nil {
 		logger.Fatal("need set port in config file")
 	}
 
-    apiHost, _ = cfg.String("weixin", "apihost")
-    callback, _ := cfg.String("weixin", "callbackurl")
-    callbackUrl = make(map[string]string)
-    json.Unmarshal([]byte(callback), &callbackUrl)
+	apiHost, _ = cfg.String("weixin", "apihost")
+	callback, _ := cfg.String("weixin", "callbackurl")
+	callbackUrl = make(map[string]string)
+	json.Unmarshal([]byte(callback), &callbackUrl)
 
-    pgHost, _ := cfg.String("pg", "host")
+	pgHost, _ := cfg.String("pg", "host")
 	pgPort, _ := cfg.String("pg", "port")
 	pgUser, _ := cfg.String("pg", "user")
 	pgPassword, _ := cfg.String("pg", "passwd")
@@ -106,33 +106,33 @@ func main() {
 	for id, app := range apps {
 		mux := weixin.New(id, app.Token, app.Id, app.Secret)
 		mux.SetDb(pgDb)
-		mux.HandleFunc(weixin.MsgTypeText, MsgTxt)                      // 文本事件
-		mux.HandleFunc(weixin.MsgTypeImage, MsgImage)                   // 图片事件
-		mux.HandleFunc(weixin.MsgTypeVoice, MsgVoice)                   // 语音事件
-		mux.HandleFunc(weixin.MsgTypeVideo, MsgVideo)                   // 视频事件
-		mux.HandleFunc(weixin.MsgTypeLocation, MsgLocation)             // 地理位置事件
-		mux.HandleFunc(weixin.MsgTypeLink, MsgLink)                     // 链接事件
-		mux.HandleFunc(weixin.MsgTypeEventScan, MsgScan)                // 扫描qrcode事件
-		mux.HandleFunc(weixin.MsgTypeEventSubscribe, Subscribe)         // 订阅事件
-		mux.HandleFunc(weixin.MsgTypeEventUnsubscribe, Unsubscribe)     // 取消订阅事件
-		mux.HandleFunc("/subscribers", GetSubscribers)                  // 更新订阅信息
-		mux.HandleFunc("/groups", GetGroups)                            // 获取组
-		mux.HandleFunc("/group/create", CreateGroup)                    // 创建组
-		mux.HandleFunc("/group/changename", ChangeGroupName)            // 组改名
-		mux.HandleFunc("/user", GetUser)                                // 获取用户信息
-		mux.HandleFunc("/user/group", GetUserGroup)                     // 获取用户组
-		mux.HandleFunc("/user/changegroup", ChangeUserGroup)            // 更改用户组
-		mux.HandleFunc("/menu/create", CreateMenu)                      // 创建自定义菜单
-		mux.HandleFunc("/menu/delete", DeleteMenu)                      // 删除自定义菜单
-		mux.HandleFunc("/qrcode/create", CreateQrcode)                  // 生成qrcode
-        mux.HandleFunc("/qrcode/show", ShowQrcode)                      // 显示qrcode
-		mux.HandleFunc("/qrcode/temp/create", CreateTempQrcode)         // 生成临时qrcode
-        mux.HandleFunc("/qrcode/temp/show", ShowTempQrcode)             // 显示临时qrcode
-        mux.HandleFunc("/message/custom/send", SendCustomMessage)       // 推送消息 
-		http.Handle("/"+id+"/", mux)                                    // 注册接收微信服务器数据的接口URI
+		mux.HandleFunc(weixin.MsgTypeText, MsgTxt)                  // 文本事件
+		mux.HandleFunc(weixin.MsgTypeImage, MsgImage)               // 图片事件
+		mux.HandleFunc(weixin.MsgTypeVoice, MsgVoice)               // 语音事件
+		mux.HandleFunc(weixin.MsgTypeVideo, MsgVideo)               // 视频事件
+		mux.HandleFunc(weixin.MsgTypeLocation, MsgLocation)         // 地理位置事件
+		mux.HandleFunc(weixin.MsgTypeLink, MsgLink)                 // 链接事件
+		mux.HandleFunc(weixin.MsgTypeEventScan, MsgScan)            // 扫描qrcode事件
+		mux.HandleFunc(weixin.MsgTypeEventSubscribe, Subscribe)     // 订阅事件
+		mux.HandleFunc(weixin.MsgTypeEventUnsubscribe, Unsubscribe) // 取消订阅事件
+		mux.HandleFunc("/subscribers", GetSubscribers)              // 更新订阅信息
+		mux.HandleFunc("/groups", GetGroups)                        // 获取组
+		mux.HandleFunc("/group/create", CreateGroup)                // 创建组
+		mux.HandleFunc("/group/changename", ChangeGroupName)        // 组改名
+		mux.HandleFunc("/user", GetUser)                            // 获取用户信息
+		mux.HandleFunc("/user/group", GetUserGroup)                 // 获取用户组
+		mux.HandleFunc("/user/changegroup", ChangeUserGroup)        // 更改用户组
+		mux.HandleFunc("/menu/create", CreateMenu)                  // 创建自定义菜单
+		mux.HandleFunc("/menu/delete", DeleteMenu)                  // 删除自定义菜单
+		mux.HandleFunc("/qrcode/create", CreateQrcode)              // 生成qrcode
+		mux.HandleFunc("/qrcode/show", ShowQrcode)                  // 显示qrcode
+		mux.HandleFunc("/qrcode/temp/create", CreateTempQrcode)     // 生成临时qrcode
+		mux.HandleFunc("/qrcode/temp/show", ShowTempQrcode)         // 显示临时qrcode
+		mux.HandleFunc("/message/custom/send", SendCustomMessage)   // 推送消息
+		http.Handle("/"+id+"/", mux)                                // 注册接收微信服务器数据的接口URI
 	}
-    logger.Tracef("Server running at %d", appPort)
-    err = http.ListenAndServe(fmt.Sprintf(":%d", appPort), nil) // 启动接收微信数据服务器
+	logger.Tracef("Server running at %d", appPort)
+	err = http.ListenAndServe(fmt.Sprintf(":%d", appPort), nil) // 启动接收微信数据服务器
 	if err != nil {
 		logger.Fatal(err)
 	}

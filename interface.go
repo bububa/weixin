@@ -2,14 +2,14 @@ package weixin
 
 import (
 	"fmt"
-	log "github.com/bububa/factorlog"
 	"github.com/bububa/pg"
+	log "github.com/kdar/factorlog"
 	"io"
 	"net/http"
 	"net/url"
 	"regexp"
-	"time"
 	"sync"
+	"time"
 )
 
 var logger *log.FactorLog
@@ -80,7 +80,7 @@ type User struct {
 	Language        string `json:"language"`
 	HeadImgUrl      string `json:"headimgurl"`
 	SubscribeTime   uint64 `json:"subscribe_time"`
-    UnsubscribeTime uint64 `json:"unsubscribe_time"`
+	UnsubscribeTime uint64 `json:"unsubscribe_time"`
 	GroupId         uint64 `json:"groupid"`
 }
 
@@ -149,7 +149,7 @@ type ResponseWriter interface {
 	GetSubscribersWithInfo(nextOpenId string) (*Subscribers, []*User, error)
 	// Menu operator
 	CreateMenu(menu *Menu) error
-    DeleteMenu() error
+	DeleteMenu() error
 	// Orcode operator
 	CreateQrcode(sceneId uint64) (*TicketReply, error)
 	CreateTempQrcode(sceneId uint64, expireSeconds uint) (*TicketReply, error)
@@ -158,7 +158,7 @@ type ResponseWriter interface {
 	// Helper
 	PgDB() *pg.DB
 	App() string
-    Wx() *Weixin
+	Wx() *Weixin
 }
 
 type responseWriter struct {
@@ -191,20 +191,20 @@ type accessToken struct {
 }
 
 type Weixin struct {
-	app         string
-	token       string
-	routes      []*route
-	tokenChan   chan accessToken
-	pg          *pg.DB
+	app       string
+	token     string
+	routes    []*route
+	tokenChan chan accessToken
+	pg        *pg.DB
 }
 
 type SceneParams struct {
-    Expires     uint64      `json:"expires,omitempty"`
-    Callback    string      `json:"callback"`
-    Created     time.Time   `json:"-"`
+	Expires  uint64    `json:"expires,omitempty"`
+	Callback string    `json:"callback"`
+	Created  time.Time `json:"-"`
 }
 
 type ScenesMap struct {
-	Mutex *sync.Mutex
+	Mutex  *sync.Mutex
 	Scenes map[uint64]SceneParams
 }
